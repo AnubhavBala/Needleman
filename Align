@@ -1,0 +1,142 @@
+import java.io.*;
+
+public class Multiple_align {
+
+	public Multiple_align() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public void initilize(int[][] b, char[][] d, String seq1, String seq2,
+			int value) {
+		int r = 0, c = 0; 
+		int numRows;
+		int numCols;
+		int temp = 1;
+
+
+		numRows = seq1.length() + 1;
+		numCols = seq2.length() + 1;
+
+		b[0][0] = 0;
+		d[0][0] = '0'; 
+
+	
+		for (r = 1; r < numRows; r++) {
+			b[r][0] = temp * value;
+			temp++;
+			d[r][0] = 'V';
+		}
+		temp = 1;
+		
+		for (c = 1; c < numCols; c++) {
+			b[0][c] = temp * value;
+			temp++;
+			d[0][c] = 'H';
+		}
+
+
+		for (r = 1; r < numRows; r++) {
+			for (c = 1; c < numCols; c++) {
+				if (seq1.charAt(r - 1) == seq2.charAt(c - 1)) {
+					b[r][c] = 1;// match
+				} else {
+					b[r][c] = -1;// mismatch
+				}
+			}
+		}
+	}
+
+	public void initilizeA(int[][] a, int[][] b, char[][] d, String seq1,
+			String seq2, int value) {
+		int r = 0, c = 0; 
+		int first;
+		int second;
+		int third;
+		int max;
+		int numRows;
+		int numCols;
+		numRows = seq1.length() + 1;
+		numCols = seq2.length() + 1;
+
+		// Init the rest of the matrix...
+		for (r = 1; r < numRows; r++) {
+			for (c = 1; c < numCols; c++) {
+				first = a[r - 1][c - 1] + b[r][c];
+				second = a[r - 1][c] + value;
+				third = a[r][c - 1] + value;
+				//second and third are vertical and horizontl respectivally so they add the gap value
+				if (first >= second && first >= third) {
+					max = first;
+					d[r][c] = 'D';
+				} else if (second >= third && second >= first) {
+					max = second;
+					d[r][c] = 'V';
+				} else {
+					max = third;
+					d[r][c] = 'H';
+				}
+				a[r][c] = max;
+
+			}
+		}
+	}
+
+	public void printSequence(char[][] m, String seq1, String seq2, int gap) {
+		int r = seq1.length() + 1;
+		int c = seq2.length() + 1;
+		int i = r;
+		int length = 0;
+		//Allows for modifidable strings
+		StringBuilder aligs1 = new StringBuilder(seq1 + "         ");
+		StringBuilder aligs2 = new StringBuilder(seq2 + "         ");
+		while (m[r + 1][c + 1] != '0') {
+			if (m[r + 1][c + 1] == 'D') {
+				aligs1.setCharAt(i, seq1.charAt(r));
+				aligs2.setCharAt(i, seq2.charAt(c));
+				r--;
+				c--;
+				i--;
+			} else if (m[r + 1][c + 1] == 'V') {
+				aligs1.setCharAt(i, seq1.charAt(r));
+				aligs2.setCharAt(i, '-');
+				r--;
+				i--;
+			} else if (m[r + 1][c + 1] == 'H') {
+				aligs1.setCharAt(i, '-');
+				aligs2.setCharAt(i, seq2.charAt(c));
+				c--;
+				i--;
+			} else {
+				r--;
+				c--;
+			}
+		}
+
+		File file = new File("output.a2m");
+		try {
+			FileWriter fw = new FileWriter(file);
+			BufferedWriter output = new BufferedWriter(fw);
+			String aligned1 = aligs1.toString();
+			String aligned2 = aligs2.toString();
+
+			try {
+				output.write(">Seq 1: \n" + aligned1 + "\n\n >Seq 2: \n"
+						+ aligned2);
+				System.out
+						.print("Sequence outputted in file name: output.a2m and is located in: "
+								+ file.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				output.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+}
