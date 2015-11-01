@@ -1,0 +1,65 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
+/**
+ * 
+ */
+
+/**
+ * @author Anubhav Balakrishnan
+ *
+ */
+public class Main {
+
+	public static void main(String[] args) {
+		Multiple_align align = new Multiple_align();
+		String seq1 = null;
+		String seq2 = null;
+		String fullseq = null;
+		String line = null;
+		String[] parts;
+		if (args.length >= 0) {
+			String filename = args[0];
+			try {
+				FileReader file = new FileReader(filename);
+				BufferedReader fasta = new BufferedReader(file);
+				while ((line = fasta.readLine()) != null) {
+					fullseq = fullseq + line;
+				}
+			} catch (FileNotFoundException ex) {
+				System.out.println("Unable to find file '" + filename + "'");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		parts = fullseq.split(">Seq 2");
+		seq1 = parts[0];
+		seq2 = parts[1];
+		parts = seq1.split(">Seq 1");
+		seq1 = parts[1];
+		int i;
+		int j;
+		int value = -2;
+		int pos = 0;
+		int size1 = seq1.length();
+		int size2 = seq2.length();
+		int[][] A = new int[size1 + 10][size2 + 10];
+		int[][] B = new int[size1 + 10][size2 + 10];
+		char[][] D = new char[size1 + 10][size2 + 10];
+		align.initilize(B, D, seq1, seq2, value);
+		for (i = 0; i < seq1.length(); i++) {
+			for (j = 0; j < seq2.length(); j++) {
+				A[i][j] = B[i][j];
+			}
+		}
+		align.initilizeA(A, B, D, seq1, seq2, value);
+
+		align.printSequence(D, seq1, seq2, value);
+
+	}
+
+}
